@@ -1,47 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>七巧板预览</title>
+    <title>HTML转图片工具</title>
     <style>
         body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        #preview {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .url-output {
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        #fileContent {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="450" height="350" style="border:solid 1px #CCCCCC;"></canvas>
+    <h1>HTML转图片工具</h1>
+    
+    <!-- 文件上传 -->
+    <div class="input-group">
+        <input type="file" id="fileInput" accept=".html,.htm" onchange="handleFileUpload(event)">
+    </div>
+
+    <!-- HTML代码输入 -->
+    <div class="input-group">
+        <textarea id="htmlInput" placeholder="在这里粘贴你的HTML代码..."></textarea>
+        <button class="button" onclick="preview()">预览</button>
+    </div>
+
+    <div id="preview"></div>
+    <div id="result"></div>
 
     <script>
-        let canvas = document.getElementById('canvas');
-        let ctx = canvas.getContext('2d');
-        
-        let datas = [
-            { "coords": [[100, 50], [340, 50], [220, 170]], "fillColor": "#caff67" },
-            { "coords": [[100, 50], [220, 170], [100, 290]], "fillColor": "#67becf" },
-            { "coords": [[340, 50], [340, 170], [280, 230], [280, 110]], "fillColor": "#ef3d61" },
-            { "coords": [[280, 110], [280, 230], [220, 170]], "fillColor": "#f9f51a" },
-            { "coords": [[220, 170], [280, 230], [220, 290], [160, 230]], "fillColor": "#a54c09" },
-            { "coords": [[160, 230], [220, 290], [100, 290]], "fillColor": "#fa8ccc" },
-            { "coords": [[340, 170], [340, 290], [220, 290]], "fillColor": "#f6ca29" }
-        ];
-
-        function drawPolygon(coords, color) {
-            ctx.beginPath();
-            ctx.moveTo(coords[0][0], coords[0][1]);
-            for (let m = 1; m < coords.length; m += 1) {
-                ctx.lineTo(coords[m][0], coords[m][1]);
+        // 处理文件上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('htmlInput').value = e.target.result;
+                    preview();
+                };
+                reader.readAsText(file);
             }
-            ctx.closePath();
-            ctx.fillStyle = color;
-            ctx.fill();
         }
 
-        // 直接绘制
-        datas.forEach(geom => drawPolygon(geom.coords, geom.fillColor));
+        function preview() {
+            const htmlCode = document.getElementById('htmlInput').value;
+            const preview = document.getElementById('preview');
+            preview.innerHTML = htmlCode;
+            
+            html2canvas(preview).then(canvas => {
+                const result = document.getElementById('result');
+                result.innerHTML = '';
+                
+                // 生成图片
+                const img = canvas.toDataURL('image/png');
+                const imgElement = document.createElement('img');
+                imgElement.src = img;
+                
+                // 创建URL显示区域
+                const urlDiv = document.createElement('div');
+                urlDiv.className = 'url-output';
+                urlDiv.textContent = img;
+                
+                // 创建复制URL按钮
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'button';
+                copyBtn.textContent = '复制图片URL';
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(img).then(() => {
+                        alert('URL已复制到剪贴板！');
+                    });
+                };
+                
+                // 创建下载按钮
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = img;
+                downloadBtn.download = 'converted-image.png';
+                downloadBtn.className = 'button';
+                downloadBtn.textContent = '下载图片';
+                
+                // 添加所有元素
+                result.appendChild(imgElement);
+                result.appendChild(document.createElement('br'));
+                result.appendChild(document.createElement('br'));
+                result.appendChild(urlDiv);
+                result.appendChild(document.createElement('br'));
+                result.appendChild(copyBtn);
+                result.appendChild(downloadBtn);
+            });
+        }
     </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </body>
 </html>
