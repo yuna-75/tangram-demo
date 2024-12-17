@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>七巧板预览</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="450" height="350" style="border:solid 1px #CCCCCC;"></canvas>
+
+    <script>
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        
+        let datas = [
+            { "coords": [[100, 50], [340, 50], [220, 170]], "fillColor": "#caff67" },
+            { "coords": [[100, 50], [220, 170], [100, 290]], "fillColor": "#67becf" },
+            { "coords": [[340, 50], [340, 170], [280, 230], [280, 110]], "fillColor": "#ef3d61" },
+            { "coords": [[280, 110], [280, 230], [220, 170]], "fillColor": "#f9f51a" },
+            { "coords": [[220, 170], [280, 230], [220, 290], [160, 230]], "fillColor": "#a54c09" },
+            { "coords": [[160, 230], [220, 290], [100, 290]], "fillColor": "#fa8ccc" },
+            { "coords": [[340, 170], [340, 290], [220, 290]], "fillColor": "#f6ca29" }
+        ];
+
+        function drawPolygon(coords, color) {
+            ctx.beginPath();
+            ctx.moveTo(coords[0][0], coords[0][1]);
+            for (let m = 1; m < coords.length; m += 1) {
+                ctx.lineTo(coords[m][0], coords[m][1]);
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // 直接绘制
+        datas.forEach(geom => drawPolygon(geom.coords, geom.fillColor));
+    </script>
+</body>
+</html>
